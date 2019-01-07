@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "bin2src"
+version = "0.0.1"
+authors = ["Tim McNamara <code@timmcnamara.co.nz>"]
+edition = "2018"
+
+[dependencies]
