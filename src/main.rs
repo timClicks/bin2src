@@ -52,7 +52,7 @@ impl <'t>Default for Translation<'t> {
     fn default() -> Self {
         Translation {
             newline: Newline::Lf,
-            max_linewidth: 79,
+            max_linewidth: DEFAULT_LINEWIDTH,
             line_start: "",
             line_end: "",
 
