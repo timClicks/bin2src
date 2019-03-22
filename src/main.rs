@@ -1,9 +1,31 @@
 // SPDX-License-Identifier: Apache-2.0
 #![allow(dead_code)]
 
+//! `bin2src` converts a stream of bytes into source code. The intention is to simplify embedding binary data 
+//! into your programs.
+//! 
+//! The following programming languages are supported:
+//!  - Rust
+//!  - Plain text (base 64 encoded output)
+//!  
+//! ## Usage
+//! 
+//! ```
+//! $ echo bin2src
+//! ```
+//! 
+//!  At this stage, there is limited support for accessing its functionality from within
+
+#[macro_use]
+extern crate clap;
+//#[macro_use]
+extern crate structopt;
+
 use std::fmt;
 use std::io;
 use std::io::prelude::*;
+use std::path::PathBuf;
+use structopt::StructOpt;
 
 const DEFAULT_LINEWIDTH: usize = 79;
 
@@ -12,7 +34,8 @@ enum Newline {
     CrLf,
 }
 
-enum ByteRepr {
+#[derive(PartialEq, Eq)]
+pub enum ByteRepr {
     LowerHex,
     UpperHex,
     Decimal,
@@ -27,7 +50,7 @@ impl fmt::Display for Newline {
     }
 }
 
-struct Translation<'t> {
+pub struct Translation<'t> {
     newline: Newline,
     max_linewidth: usize,
 
@@ -73,6 +96,7 @@ impl <'t>Translation<'t> {
         Translation {
             byte_prefix: "\\x",
             byte_repr: ByteRepr::LowerHex,
+            variable: "",
             ..Default::default()
         }
     }
@@ -81,6 +105,7 @@ impl <'t>Translation<'t> {
         Translation {
             byte_prefix: "\\x",
             byte_repr: ByteRepr::UpperHex,
+            variable: "",
             ..Default::default()
         }
     }
@@ -95,6 +120,28 @@ impl <'t>Translation<'t> {
             prologue_pre_variable: "const ",
             prologue_post_variable: ": &[u8] = b\"",
             epilogue: "\";",
+            ..Default::default()
+        }
+    }
+
+    fn python() -> Self {
+        Translation {
+            byte_prefix: "\\x",
+            byte_repr: ByteRepr::LowerHex,
+            byte_suffix: "",
+            prologue_post_variable: " = \"\"\"",
+            epilogue: "\"\"\"",
+            ..Default::default()
+        }
+    }
+
+    fn go() -> Self {
+        Translation {
+            byte_prefix: "\\x",
+            byte_repr: ByteRepr::LowerHex,
+            byte_suffix: "",
+            prologue_post_variable: " := []byte(`",
+            epilogue: "`)",
             ..Default::default()
         }
     }
@@ -118,7 +165,7 @@ fn write_decimal<W: Write>(out: &mut W, prefix: &str, byte:u8, suffix: &str) -> 
 type ByteFormatter<W> = fn(&mut W, &str, u8, &str) -> io::Result<()>;
 
 #[inline]
-fn write_byte<W: Write>(formatter: ByteFormatter<W>, out: &mut W, prefix: &str, byte: u8, suffix: &str) -> io::Result<()> {
+pub fn write_byte<W: Write>(formatter: ByteFormatter<W>, out: &mut W, prefix: &str, byte: u8, suffix: &str) -> io::Result<()> {
     (formatter)(out, prefix, byte, suffix)
 }
 
@@ -152,17 +199,107 @@ fn translate<W: Write, R:Read>(template: &Translation, binary: R, out: &mut W) -
     Ok(())
 }
 
+arg_enum! {
+    #[derive(Debug, Eq, PartialEq)]
+    enum OutputFormat {
+        Rust,
+        Python,
+        PlainText,
+        Go,
+    }
+}
+
+arg_enum! {
+    #[derive(Debug, Eq, PartialEq)]
+    enum Choice {
+        Yes,
+        No
+    }
+}
+
+#[derive(StructOpt, Debug)]
+#[structopt(rename_all = "kebab-case", raw(setting = "structopt::clap::AppSettings::ColoredHelp", setting = "structopt::clap::AppSettings::ColorAuto"))]
+/// Converts a stream of bytes into source code to facilitate embedding binary data 
+/// into your programs.
+struct Opts {
+    #[structopt(short = "f", long = "output", default_value = "plaintext", raw(possible_values = r#"&["plaintext", "go", "rust", "python"]"#, case_insensitive = "true"), name = "format")]
+    /// Format that the incoming bytes will be converted into.
+    output_format: OutputFormat,
+
+    /// Variable name used within the source code (ignored for PlainText)
+    /// 
+    /// <a> should be a valid identifier within the <output-format>
+    /// language.
+    ///
+    #[structopt(short = "a", long, default_value = "DATA", name = "a")]
+    variable: String,
+
+    #[structopt(long)]
+    no_trailing_newline: bool,
+
+    #[structopt(long)]
+    upper_case: bool,
+
+    #[structopt(long, short = "w", default_value = "79", name = "width")]
+    /// constrains output to <width> characters
+    max_linewidth: usize,
+
+    #[structopt(long, parse(from_os_str), default_value = "-")]
+    /// file to read byte stream from (- will be converted to read from stdin)
+    from: PathBuf,
+
+    #[structopt(long, parse(from_os_str), default_value = "-")]
+    /// file to write output to (- will be converted to read from stdin)
+    to: PathBuf,
+}
+
 fn main() {
-    use std::env;
+    //use std::env;
     let stdin = io::stdin();
     let stdin = stdin.lock();
     let mut stdout = io::stdout();
 
-    let variable: String = env::args().nth(1).unwrap_or_else(|| String::from("DATA"));
+    let opts = Opts::from_args();
 
-    let mut translation = Translation::rust();
-    translation.variable = &variable;
-    translate(&translation, stdin, &mut stdout).unwrap_or_else(|err| { eprintln!("error: {}", err) });
+    let mut translation = match opts.output_format {
+        OutputFormat::Rust => Translation::rust(),
+        OutputFormat::PlainText => Translation::lower_hex(),
+        OutputFormat::Python => Translation::python(),
+        OutputFormat::Go => Translation::go(),
+    };
 
-    println!();
+    translation.max_linewidth = opts.max_linewidth;
+
+    if !opts.variable.is_empty() && opts.output_format != OutputFormat::PlainText {
+        translation.variable = &opts.variable 
+    };
+
+    if opts.upper_case && translation.byte_repr == ByteRepr::LowerHex {
+        translation.byte_repr = ByteRepr::UpperHex
+    };
+
+    let source: Box<Read> = match opts.from.to_str() {
+        None => Box::new(stdin),
+        Some("-") => Box::new(stdin),
+        Some("") => Box::new(stdin),
+        Some(input_file) => {
+            let f = std::fs::File::open(input_file).expect("unable to open <from>");
+            Box::new(f)
+        }
+    };
+
+    let mut destination: Box<Write> = match opts.to.to_str() {
+        None => Box::new(stdout),
+        Some("-") => Box::new(stdout),
+        Some("") => Box::new(stdout),
+        Some(output_file) => Box::new(std::fs::File::open(output_file).expect("unable to open <to>"))
+    };
+
+    translate(&translation, source, &mut destination).unwrap_or_else(|err| {
+         eprintln!("error: {}", err)
+    });
+
+    if !opts.no_trailing_newline {
+        println!();
+    }
 }

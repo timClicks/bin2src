@@ -7,3 +7,5 @@ authors = ["Tim McNamara <code@timmcnamara.co.nz>"]
 edition = "2018"
 
 [dependencies]
+structopt = "0.2"
+clap = "2.3"
