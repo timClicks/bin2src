@@ -60,20 +60,68 @@ legal
 
 ## copyright
 
-    Copyright 2019 Tim McNamara <code@timmcnamara.co.nz>
+BIN2SRC is open source software. You're entitled to copy, store and redistribute 
+BIN2SRC as provided under the terms of the [Blue Oak Model License][].
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+[Blue Oak Model License]: https://blueoakcouncil.org/license/1.0.0
 
-      http://www.apache.org/licenses/LICENSE-2.0
+```markdown
+# Blue Oak Model License
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-   limitations under the License.
+Version 1.0.0
 
+## Purpose
+
+This license gives everyone as much permission to work with
+this software as possible, while protecting contributors
+from liability.
+
+## Acceptance
+
+In order to receive this license, you must agree to its
+rules.  The rules of this license are both obligations
+under that agreement and conditions to your license.
+You must not do anything with this software that triggers
+a rule that you cannot or will not follow.
+
+## Copyright
+
+Each contributor licenses you to do everything with this
+software that would otherwise infringe that contributor's
+copyright in it.
+
+## Notices
+
+You must ensure that everyone who gets a copy of
+any part of this software from you, with or without
+changes, also gets the text of this license or a link to
+<https://blueoakcouncil.org/license/1.0.0>.
+
+## Excuse
+
+If anyone notifies you in writing that you have not
+complied with [Notices](#notices), you can keep your
+license by taking all practical steps to comply within 30
+days after the notice.  If you do not do so, your license
+ends immediately.
+
+## Patent
+
+Each contributor licenses you to do everything with this
+software that would otherwise infringe any patent claims
+they can license or become able to license.
+
+## Reliability
+
+No contributor can revoke this license.
+
+## No Liability
+
+***As far as the law allows, this software comes as is,
+without any warranty or condition, and no contributor
+will be liable to anyone for any damages related to this
+software or this license, under any kind of legal claim.***
+```
 
 ## trade mark
 
@@ -82,10 +130,10 @@ BIN2SRC is a trade mark of Tim McNamara.
 
 ## consumer protection
 
-Notwithstanding the disclaimer the above, you have rights under New 
+If you're using BIN2SRC for personal reasons, you have rights under New 
 Zealand's Consumer Guarantees Act 1993. Be aware though that this 
 software is software that you've downloaded from the Internet for 
-free, so please use use diligence.
+free, so please use use your own diligence.
 
 
 ## jurisdiction

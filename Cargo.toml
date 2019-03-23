@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: BlueOak-1.0.0
 
 [package]
 name = "bin2src"

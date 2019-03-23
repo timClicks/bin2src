@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: BlueOak-1.0.0
 #![allow(dead_code)]
 
 //! `bin2src` converts a stream of bytes into source code. The intention is to simplify embedding binary data 
