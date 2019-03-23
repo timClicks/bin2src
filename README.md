@@ -6,21 +6,42 @@ about
 
 `bin2src` takes an input stream of bytes and converts
 that into source code. That source code can then be 
-easily embedded in future projects. 
-
-It's intended to be a bin2c clone, but more general 
-because it will support more than the C language.
-At this stage though, only Rust language output is 
-supported.
+easily embedded in future projects.
 
 
 usage
 -----
 
-Read from STDIN and write to STDOUT:
+Read bytes from STDIN and write them to STDOUT:
 
-    cat input.dat | bin2src
+    $ echo "hello" | bin2src
+    \x68\x65\x6c\x6c\x6f\x0a
 
+Note that there is no need to convert your input bytes to a plain text encoding:
+
+    $ head -c 10 /dev/urandom | bin2src 
+    \x30\xc7\x18\x67\x5b\xc3\x7b\x7d\x12\xcd
+
+The primary purpose of `bin2src` is to facilitate embedding binary blobs into software source code.
+To specify an output format, use the `-f` option ("f" for format):
+
+    $ head -c 10 /dev/urandom | bin2src -f python
+    DATA = """\x22\x82\x2d\xd4\xb8\x8c\x36\xb4\x35\x21"""
+
+If you would like to change the variable name, use the `-a` option ("a" is a common mathematical variable):
+
+    $ head -c 10 /dev/urandom | bin2src -f python -a RAND_BYTES
+    RAND_BYTES = """\xf5\xde\x5e\xdc\x66\xeb\x89\x24\x13\xd5"""
+
+Other options are available. See the full list by running `bin2src --help`. 
+
+supported output formats
+------------------------
+
+- plaintext (default)
+- go
+- rust
+- python
 
 building
 --------
@@ -33,26 +54,22 @@ The easiest route is via `git` and `cargo`:
 
 `bin2src` will now be available within the `./target/debug` directory:
 
-    $ echo Hello | ./target/debug/bin2src
-    const DATA: &[u8] = b"\x48\x65\x6C\x6C\x6F\x0A";
-
-From the `bin2src` source directory, it's also possible to ask 
-`cargo` to figure out where the executable lives directly: 
-
-    $ echo Hello | cargo run
-       Compiling bin2src v0.1.0 (/home/tsm/Code/bin2src)
-        Finished dev [unoptimized + debuginfo] target(s) in 0.35s
-         Running `target/debug/bin2src`
-    const DATA: &[u8] = b"\x48\x65\x6C\x6C\x6F\x0A";
+    $ echo Hello | ./target/debug/bin2src -f rust
+    const DATA: &[u8] = b"\x48\x65\x6c\x6c\x6f\x0a";
 
 
 contributing
 ------------
 
-Please file an issue with the language that you would like
-supported and/or any other contributions that you are 
-interested in. When the project ready to accept contributions, 
-these will be the first ones to be addressed.
+**Contributions welcome!**
+
+Adding support for a new language is very easy. It should take no 
+more than adding 10 lines of code. 
+
+If you're not comfortable writing software, but still have an idea to
+extend the project -- that's fine too. Please file an issue with the language that you would like
+supported and/or any other features that you are 
+interested in.
 
 
 legal
