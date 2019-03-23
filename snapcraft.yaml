@@ -1,0 +1,21 @@
+name: bin2src
+version: "0.1.0"
+summary: Convert bytes to source code
+description: |
+  bin2src takes an input stream of bytes and converts
+  that into source code. That source code version of the
+  input can then be easily embedded into your project with Copy+Paste.
+
+confinement: strict
+
+apps:
+  bin2src:
+    command: bin2src
+    plugs: [home]
+
+parts:
+  bin2src:
+    source: .
+    plugin: rust
+    build-packages: []
+    stage-packages: []
