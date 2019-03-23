@@ -257,7 +257,7 @@ fn main() {
     //use std::env;
     let stdin = io::stdin();
     let stdin = stdin.lock();
-    let mut stdout = io::stdout();
+    let stdout = io::stdout();
 
     let opts = Opts::from_args();
 
