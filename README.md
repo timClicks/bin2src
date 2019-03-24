@@ -1,7 +1,8 @@
 src2bin
 =======
 
-[![Snap Status](https://build.snapcraft.io/badge/timClicks/bin2src.svg)](https://build.snapcraft.io/user/timClicks/bin2src)
+[![asciicast](https://asciinema.org/a/236012.svg)](https://asciinema.org/a/236012)
+
 
 about
 -----
