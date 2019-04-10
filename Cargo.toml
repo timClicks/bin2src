@@ -2,10 +2,16 @@
 
 [package]
 name = "bin2src"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Tim McNamara <code@timmcnamara.co.nz>"]
 edition = "2018"
 
 [dependencies]
 structopt = "0.2"
 clap = "2.3"
+
+[profile.release]
+debug = true
+lto = true
+opt-level = 3
+codegen-units = 1

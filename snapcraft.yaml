@@ -1,5 +1,6 @@
 name: bin2src
-version: "0.1.0"
+base: core18
+version: "0.1.1"
 summary: Convert bytes to source code
 description: |
   bin2src takes an input stream of bytes and converts
@@ -17,5 +18,5 @@ parts:
   bin2src:
     source: .
     plugin: rust
-    build-packages: []
+    build-packages: [ build-essential ]
     stage-packages: []
